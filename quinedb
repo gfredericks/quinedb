@@ -1,0 +1,271 @@
+#!/usr/bin/env bash
+
+if [[ "$BASH_VERSION" =~ ^3 ]]; then
+    echo 'quinedb requires bash 4!'
+    exit 1
+fi
+
+declare -A db
+
+db=(
+)
+
+pr_str () {
+    s="$1"
+    if [[ "$s" =~ ^[-a-zA-Z0-9]+$ ]]; then
+        echo "$s"
+    else
+        ret=\$\'
+        for (( i=0; i<${#s}; i++ )); do
+            c="${s:$i:1}"
+            if [[ "$c" =~ [-_a-zA-Z0-9\ ] ]]; then
+                ret="${ret}$c"
+            else
+                case "$c" in
+                    $'\a')
+                        ret="${ret}\\a"
+                    ;;
+                    $'\b')
+                        ret="${ret}\\b"
+                    ;;
+                    $'\e')
+                        ret="${ret}\\e"
+                    ;;
+                    $'\E')
+                        ret="${ret}\\E"
+                    ;;
+                    $'\f')
+                        ret="${ret}\\f"
+                    ;;
+                    $'\n')
+                        ret="${ret}\\n"
+                    ;;
+                    $'\r')
+                        ret="${ret}\\r"
+                    ;;
+                    $'\t')
+                        ret="${ret}\\t"
+                    ;;
+                    $'\v')
+                        ret="${ret}\\v"
+                    ;;
+                    $'\\')
+                        ret="${ret}\\\\"
+                    ;;
+                    $'\'')
+                        ret="${ret}\\"\'
+                    ;;
+                    $'\"')
+                        ret="${ret}\\"\"
+                    ;;
+                    else)
+                        ret="${ret}\\$c"
+                esac
+            fi
+        done
+        echo "${ret}"\'
+    fi
+}
+
+print_db(){
+    echo "db=("
+    i=0
+    for k in "${!db[@]}"; do
+        escaped_keys[$i]=$(pr_str "$k")
+        i=$((i+1))
+    done
+
+    # sort the keys for deterministic printing
+    IFS=$'\n' sorted=($(for l in ${escaped_keys[@]}; do echo $l; done | sort))
+    unset IFS
+
+    for k in "${sorted[@]}"; do
+        unescaped=$(eval "echo $k")
+        v=${db["$unescaped"]}
+        echo "    [$k]=$(pr_str "$v")"
+    done
+    echo ")"
+}
+
+SEC1=$(cat <<'EOF'
+#!/usr/bin/env bash
+
+if [[ "$BASH_VERSION" =~ ^3 ]]; then
+    echo 'quinedb requires bash 4!'
+    exit 1
+fi
+
+declare -A db
+EOF
+)
+
+SEC2=$(cat <<'EOF'
+pr_str () {
+    s="$1"
+    if [[ "$s" =~ ^[-a-zA-Z0-9]+$ ]]; then
+        echo "$s"
+    else
+        ret=\$\'
+        for (( i=0; i<${#s}; i++ )); do
+            c="${s:$i:1}"
+            if [[ "$c" =~ [-_a-zA-Z0-9\ ] ]]; then
+                ret="${ret}$c"
+            else
+                case "$c" in
+                    $'\a')
+                        ret="${ret}\\a"
+                    ;;
+                    $'\b')
+                        ret="${ret}\\b"
+                    ;;
+                    $'\e')
+                        ret="${ret}\\e"
+                    ;;
+                    $'\E')
+                        ret="${ret}\\E"
+                    ;;
+                    $'\f')
+                        ret="${ret}\\f"
+                    ;;
+                    $'\n')
+                        ret="${ret}\\n"
+                    ;;
+                    $'\r')
+                        ret="${ret}\\r"
+                    ;;
+                    $'\t')
+                        ret="${ret}\\t"
+                    ;;
+                    $'\v')
+                        ret="${ret}\\v"
+                    ;;
+                    $'\\')
+                        ret="${ret}\\\\"
+                    ;;
+                    $'\'')
+                        ret="${ret}\\"\'
+                    ;;
+                    $'\"')
+                        ret="${ret}\\"\"
+                    ;;
+                    else)
+                        ret="${ret}\\$c"
+                esac
+            fi
+        done
+        echo "${ret}"\'
+    fi
+}
+
+print_db(){
+    echo "db=("
+    i=0
+    for k in "${!db[@]}"; do
+        escaped_keys[$i]=$(pr_str "$k")
+        i=$((i+1))
+    done
+
+    # sort the keys for deterministic printing
+    IFS=$'\n' sorted=($(for l in ${escaped_keys[@]}; do echo $l; done | sort))
+    unset IFS
+
+    for k in "${sorted[@]}"; do
+        unescaped=$(eval "echo $k")
+        v=${db["$unescaped"]}
+        echo "    [$k]=$(pr_str "$v")"
+    done
+    echo ")"
+}
+EOF
+)
+
+SEC3=$(cat <<'EOF'
+print_self(){
+    echo "$SEC1"; echo
+    print_db; echo
+    echo "$SEC2"; echo
+    echo 'SEC1=$(cat <<'\'EOF\'
+    echo "$SEC1"
+    echo EOF
+    echo \); echo
+    echo 'SEC2=$(cat <<'\'EOF\'
+    echo "$SEC2"
+    echo EOF
+    echo \); echo
+    echo 'SEC3=$(cat <<'\'EOF\'
+    echo "$SEC3"
+    echo EOF
+    echo \); echo
+    echo "$SEC3"
+}
+
+case "$1" in
+    "get")
+        if [ ${db["$2"]+_} ]; then
+            v=${db["$2"]}
+            echo "$(pr_str "$v")" >&2
+        fi
+    ;;
+    "set")
+        db["$2"]="$3"
+        echo 'OK' >&2
+    ;;
+    "delete")
+        unset db["$2"]
+        echo 'OK' >&2
+    ;;
+    "keys")
+        for k in "${!db[@]}"; do echo "$(pr_str "$k")"; done >&2
+    ;;
+    *)
+        echo "USAGE: quinedb [get k | set k v | delete k | keys]" >&2
+    ;;
+esac
+
+print_self
+EOF
+)
+
+print_self(){
+    echo "$SEC1"; echo
+    print_db; echo
+    echo "$SEC2"; echo
+    echo 'SEC1=$(cat <<'\'EOF\'
+    echo "$SEC1"
+    echo EOF
+    echo \); echo
+    echo 'SEC2=$(cat <<'\'EOF\'
+    echo "$SEC2"
+    echo EOF
+    echo \); echo
+    echo 'SEC3=$(cat <<'\'EOF\'
+    echo "$SEC3"
+    echo EOF
+    echo \); echo
+    echo "$SEC3"
+}
+
+case "$1" in
+    "get")
+        if [ ${db["$2"]+_} ]; then
+            v=${db["$2"]}
+            echo "$(pr_str "$v")" >&2
+        fi
+    ;;
+    "set")
+        db["$2"]="$3"
+        echo 'OK' >&2
+    ;;
+    "delete")
+        unset db["$2"]
+        echo 'OK' >&2
+    ;;
+    "keys")
+        for k in "${!db[@]}"; do echo "$(pr_str "$k")"; done >&2
+    ;;
+    *)
+        echo "USAGE: quinedb [get k | set k v | delete k | keys]" >&2
+    ;;
+esac
+
+print_self

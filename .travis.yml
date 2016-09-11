@@ -1,0 +1,2 @@
+language: ruby
+script: ruby test.rb
