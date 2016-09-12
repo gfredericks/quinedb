@@ -43,7 +43,7 @@ To set a key to a value, use `quinedb set <k> <v>`:
 ``` shell
 $ qdb set foo bar
 OK
-$ qdb set count
+$ qdb set count 42
 OK
 ```
 
