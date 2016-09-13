@@ -142,7 +142,7 @@ I was able to insert 100 k/v pairs into an empty database in a mere 10
 seconds. The runtime of each operation is (probably) proportional to
 O(n·log(n)), so it's not too surprising that inserting 1000 k/v pairs
 took over 11 minutes. If you need the database to be fast, we
-recommend not putting too pmuch data in it.
+recommend not putting too much data in it.
 
 ### Are the keys and values unicode strings or arbitrary binary data?
 
