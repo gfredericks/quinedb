@@ -25,10 +25,9 @@ be helpful, and the examples that follow will make use of it:
 ``` shell
 qdb () {
   ./quinedb "$@" > qdb.out 2> qdb.err
-  mv qdb.out quinedb
-  chmod +x quinedb
+  cat qdb.out > quinedb
   cat qdb.err
-  rm qdb.err
+  rm qdb.err qdb.out
 }
 ```
 
