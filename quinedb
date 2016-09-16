@@ -19,47 +19,47 @@ pr_str () {
         for (( i=0; i<${#s}; i++ )); do
             c="${s:$i:1}"
             if [[ "$c" =~ [-_a-zA-Z0-9\ ] ]]; then
-                ret="${ret}$c"
+                ret+="$c"
             else
                 case "$c" in
                     $'\a')
-                        ret="${ret}\\a"
+                        ret+="\\a"
                     ;;
                     $'\b')
-                        ret="${ret}\\b"
+                        ret+="\\b"
                     ;;
                     $'\e')
-                        ret="${ret}\\e"
+                        ret+="\\e"
                     ;;
                     $'\E')
-                        ret="${ret}\\E"
+                        ret+="\\E"
                     ;;
                     $'\f')
-                        ret="${ret}\\f"
+                        ret+="\\f"
                     ;;
                     $'\n')
-                        ret="${ret}\\n"
+                        ret+="\\n"
                     ;;
                     $'\r')
-                        ret="${ret}\\r"
+                        ret+="\\r"
                     ;;
                     $'\t')
-                        ret="${ret}\\t"
+                        ret+="\\t"
                     ;;
                     $'\v')
-                        ret="${ret}\\v"
+                        ret+="\\v"
                     ;;
                     $'\\')
-                        ret="${ret}\\\\"
+                        ret+="\\\\"
                     ;;
                     $'\'')
-                        ret="${ret}\\"\'
+                        ret+="\\"\'
                     ;;
                     $'\"')
-                        ret="${ret}\\"\"
+                        ret+="\\"\"
                     ;;
                     else)
-                        ret="${ret}\\$c"
+                        ret+="\\$c"
                 esac
             fi
         done
@@ -109,47 +109,47 @@ pr_str () {
         for (( i=0; i<${#s}; i++ )); do
             c="${s:$i:1}"
             if [[ "$c" =~ [-_a-zA-Z0-9\ ] ]]; then
-                ret="${ret}$c"
+                ret+="$c"
             else
                 case "$c" in
                     $'\a')
-                        ret="${ret}\\a"
+                        ret+="\\a"
                     ;;
                     $'\b')
-                        ret="${ret}\\b"
+                        ret+="\\b"
                     ;;
                     $'\e')
-                        ret="${ret}\\e"
+                        ret+="\\e"
                     ;;
                     $'\E')
-                        ret="${ret}\\E"
+                        ret+="\\E"
                     ;;
                     $'\f')
-                        ret="${ret}\\f"
+                        ret+="\\f"
                     ;;
                     $'\n')
-                        ret="${ret}\\n"
+                        ret+="\\n"
                     ;;
                     $'\r')
-                        ret="${ret}\\r"
+                        ret+="\\r"
                     ;;
                     $'\t')
-                        ret="${ret}\\t"
+                        ret+="\\t"
                     ;;
                     $'\v')
-                        ret="${ret}\\v"
+                        ret+="\\v"
                     ;;
                     $'\\')
-                        ret="${ret}\\\\"
+                        ret+="\\\\"
                     ;;
                     $'\'')
-                        ret="${ret}\\"\'
+                        ret+="\\"\'
                     ;;
                     $'\"')
-                        ret="${ret}\\"\"
+                        ret+="\\"\"
                     ;;
                     else)
-                        ret="${ret}\\$c"
+                        ret+="\\$c"
                 esac
             fi
         done
