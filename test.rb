@@ -24,9 +24,7 @@ class ILoveOOP < Test::Unit::TestCase
   end
 
   def pr_str s
-    s2 = ""
-    (0...(s.length)).each{|i|s2 << "\\#{s[i]}"}
-    s2
+  	"'#{s.gsub(/'/, "'\\\\''")}'"
   end
 
   def cmd *args
