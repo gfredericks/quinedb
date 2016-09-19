@@ -97,11 +97,11 @@ case "$1" in
         echo 'OK' >&2
     ;;
     "delete")
-        unset db["$2"]
+        unset 'db[$2]'
         echo 'OK' >&2
     ;;
     "keys")
-        for k in "${!db[@]}"; do echo "$(printf %q "$k")"; done >&2
+        printf '%q\n' "${!db[@]}" >&2
     ;;
     *)
         echo "USAGE: quinedb [get k | set k v | delete k | keys]" >&2
@@ -143,11 +143,11 @@ case "$1" in
         echo 'OK' >&2
     ;;
     "delete")
-        unset db["$2"]
+        unset 'db[$2]'
         echo 'OK' >&2
     ;;
     "keys")
-        for k in "${!db[@]}"; do echo "$(printf %q "$k")"; done >&2
+        printf '%q\n' "${!db[@]}" >&2
     ;;
     *)
         echo "USAGE: quinedb [get k | set k v | delete k | keys]" >&2
