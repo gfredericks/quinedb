@@ -24,7 +24,7 @@ be helpful, and the examples that follow will make use of it:
 
 ``` shell
 qdb () {
-  ./quinedb "$@" > qdb.out 2> qdb.err
+  ./quinedb "$@" > qdb.out 2> qdb.err || return "$?"
   cat qdb.out > quinedb
   cat qdb.err
   rm qdb.err qdb.out
