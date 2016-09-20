@@ -10,79 +10,22 @@ declare -A db
 db=(
 )
 
-pr_str () {
-    s="$1"
-    if [[ "$s" =~ ^[-a-zA-Z0-9]+$ ]]; then
-        echo "$s"
-    else
-        ret=\$\'
-        for (( i=0; i<${#s}; i++ )); do
-            c="${s:$i:1}"
-            if [[ "$c" =~ [-_a-zA-Z0-9\ ] ]]; then
-                ret+="$c"
-            else
-                case "$c" in
-                    $'\a')
-                        ret+="\\a"
-                    ;;
-                    $'\b')
-                        ret+="\\b"
-                    ;;
-                    $'\e')
-                        ret+="\\e"
-                    ;;
-                    $'\E')
-                        ret+="\\E"
-                    ;;
-                    $'\f')
-                        ret+="\\f"
-                    ;;
-                    $'\n')
-                        ret+="\\n"
-                    ;;
-                    $'\r')
-                        ret+="\\r"
-                    ;;
-                    $'\t')
-                        ret+="\\t"
-                    ;;
-                    $'\v')
-                        ret+="\\v"
-                    ;;
-                    $'\\')
-                        ret+="\\\\"
-                    ;;
-                    $'\'')
-                        ret+="\\"\'
-                    ;;
-                    $'\"')
-                        ret+="\\"\"
-                    ;;
-                    else)
-                        ret+="\\$c"
-                esac
-            fi
-        done
-        echo "${ret}"\'
-    fi
-}
-
 print_db(){
     echo "db=("
     i=0
     for k in "${!db[@]}"; do
-        escaped_keys[$i]=$(pr_str "$k")
+        escaped_keys[$i]=$(printf %q "$k")
         i=$((i+1))
     done
 
     # sort the keys for deterministic printing
-    IFS=$'\n' sorted=($(for l in ${escaped_keys[@]}; do echo $l; done | sort))
+    IFS=$'\n' sorted=($(printf '%s' "${escaped_keys[*]}" | sort))
     unset IFS
 
     for k in "${sorted[@]}"; do
         unescaped=$(eval "echo $k")
         v=${db["$unescaped"]}
-        echo "    [$k]=$(pr_str "$v")"
+        echo "    [$k]=$(printf %q "$v")"
     done
     echo ")"
 }
@@ -100,79 +43,22 @@ EOF
 )
 
 SEC2=$(cat <<'EOF'
-pr_str () {
-    s="$1"
-    if [[ "$s" =~ ^[-a-zA-Z0-9]+$ ]]; then
-        echo "$s"
-    else
-        ret=\$\'
-        for (( i=0; i<${#s}; i++ )); do
-            c="${s:$i:1}"
-            if [[ "$c" =~ [-_a-zA-Z0-9\ ] ]]; then
-                ret+="$c"
-            else
-                case "$c" in
-                    $'\a')
-                        ret+="\\a"
-                    ;;
-                    $'\b')
-                        ret+="\\b"
-                    ;;
-                    $'\e')
-                        ret+="\\e"
-                    ;;
-                    $'\E')
-                        ret+="\\E"
-                    ;;
-                    $'\f')
-                        ret+="\\f"
-                    ;;
-                    $'\n')
-                        ret+="\\n"
-                    ;;
-                    $'\r')
-                        ret+="\\r"
-                    ;;
-                    $'\t')
-                        ret+="\\t"
-                    ;;
-                    $'\v')
-                        ret+="\\v"
-                    ;;
-                    $'\\')
-                        ret+="\\\\"
-                    ;;
-                    $'\'')
-                        ret+="\\"\'
-                    ;;
-                    $'\"')
-                        ret+="\\"\"
-                    ;;
-                    else)
-                        ret+="\\$c"
-                esac
-            fi
-        done
-        echo "${ret}"\'
-    fi
-}
-
 print_db(){
     echo "db=("
     i=0
     for k in "${!db[@]}"; do
-        escaped_keys[$i]=$(pr_str "$k")
+        escaped_keys[$i]=$(printf %q "$k")
         i=$((i+1))
     done
 
     # sort the keys for deterministic printing
-    IFS=$'\n' sorted=($(for l in ${escaped_keys[@]}; do echo $l; done | sort))
+    IFS=$'\n' sorted=($(printf '%s' "${escaped_keys[*]}" | sort))
     unset IFS
 
     for k in "${sorted[@]}"; do
         unescaped=$(eval "echo $k")
         v=${db["$unescaped"]}
-        echo "    [$k]=$(pr_str "$v")"
+        echo "    [$k]=$(printf %q "$v")"
     done
     echo ")"
 }
@@ -201,9 +87,9 @@ print_self(){
 
 case "$1" in
     "get")
-        if [ ${db["$2"]+_} ]; then
+        if [ "${db["$2"]+_}" ]; then
             v=${db["$2"]}
-            echo "$(pr_str "$v")" >&2
+            echo "$(printf %q "$v")" >&2
         fi
     ;;
     "set")
@@ -211,11 +97,11 @@ case "$1" in
         echo 'OK' >&2
     ;;
     "delete")
-        unset db["$2"]
+        unset 'db[$2]'
         echo 'OK' >&2
     ;;
     "keys")
-        for k in "${!db[@]}"; do echo "$(pr_str "$k")"; done >&2
+        if ((${#db[@]})); then printf '%q\n' "${!db[@]}"; fi >&2
     ;;
     *)
         echo "USAGE: quinedb [get k | set k v | delete k | keys]" >&2
@@ -247,9 +133,9 @@ print_self(){
 
 case "$1" in
     "get")
-        if [ ${db["$2"]+_} ]; then
+        if [ "${db["$2"]+_}" ]; then
             v=${db["$2"]}
-            echo "$(pr_str "$v")" >&2
+            echo "$(printf %q "$v")" >&2
         fi
     ;;
     "set")
@@ -257,11 +143,11 @@ case "$1" in
         echo 'OK' >&2
     ;;
     "delete")
-        unset db["$2"]
+        unset 'db[$2]'
         echo 'OK' >&2
     ;;
     "keys")
-        for k in "${!db[@]}"; do echo "$(pr_str "$k")"; done >&2
+        if ((${#db[@]})); then printf '%q\n' "${!db[@]}"; fi >&2
     ;;
     *)
         echo "USAGE: quinedb [get k | set k v | delete k | keys]" >&2
