@@ -101,7 +101,7 @@ case "$1" in
         echo 'OK' >&2
     ;;
     "keys")
-        printf '%q\n' "${!db[@]}" >&2
+        if ((${#db[@]})); then printf '%q\n' "${!db[@]}"; fi >&2
     ;;
     *)
         echo "USAGE: quinedb [get k | set k v | delete k | keys]" >&2
@@ -147,7 +147,7 @@ case "$1" in
         echo 'OK' >&2
     ;;
     "keys")
-        printf '%q\n' "${!db[@]}" >&2
+        if ((${#db[@]})); then printf '%q\n' "${!db[@]}"; fi >&2
     ;;
     *)
         echo "USAGE: quinedb [get k | set k v | delete k | keys]" >&2
