@@ -10,31 +10,7 @@ declare -A db
 db=(
 )
 
-pr_str () {
-    printf "%q" "$1"
-}
-
-print_db(){
-    echo "db=("
-    i=0
-    for k in "${!db[@]}"; do
-        escaped_keys[$i]=$(pr_str "$k")
-        i=$((i+1))
-    done
-
-    # sort the keys for deterministic printing
-    IFS=$'\n' sorted=($(for l in ${escaped_keys[@]}; do echo $l; done | sort))
-    unset IFS
-
-    for k in "${sorted[@]}"; do
-        unescaped=$(eval "echo $k")
-        v=${db["$unescaped"]}
-        echo "    [$k]=$(pr_str "$v")"
-    done
-    echo ")"
-}
-
-SEC1=$(cat <<'EOF'
+PREAMBLE=$(cat <<'EOF'
 #!/usr/bin/env bash
 
 if [[ "$BASH_VERSION" =~ ^3 ]]; then
@@ -46,10 +22,35 @@ declare -A db
 EOF
 )
 
-SEC2=$(cat <<'EOF'
+POSTAMBLE=$(cat <<'EOF'
 pr_str () {
     printf "%q" "$1"
 }
+
+case "$1" in
+    "get")
+        if [ ${db["$2"]+_} ]; then
+            v=${db["$2"]}
+            echo "$(pr_str "$v")" >&2
+        fi
+    ;;
+    "set")
+        db["$2"]="$3"
+        echo 'OK' >&2
+    ;;
+    "delete")
+        unset db["$2"]
+        echo 'OK' >&2
+    ;;
+    "keys")
+        for k in "${!db[@]}"; do echo "$(pr_str "$k")"; done >&2
+    ;;
+    *)
+        echo "USAGE: quinedb [get k | set k v | delete k | keys]" >&2
+    ;;
+esac
+
+# print self
 
 print_db(){
     echo "db=("
@@ -70,27 +71,23 @@ print_db(){
     done
     echo ")"
 }
+
+echo "$PREAMBLE"; echo
+print_db; echo
+echo 'PREAMBLE=$(cat <<'\'EOF\'
+echo "$PREAMBLE"
+echo EOF
+echo \); echo
+echo 'POSTAMBLE=$(cat <<'\'EOF\'
+echo "$POSTAMBLE"
+echo EOF
+echo \); echo
+echo "$POSTAMBLE"
 EOF
 )
 
-SEC3=$(cat <<'EOF'
-print_self(){
-    echo "$SEC1"; echo
-    print_db; echo
-    echo "$SEC2"; echo
-    echo 'SEC1=$(cat <<'\'EOF\'
-    echo "$SEC1"
-    echo EOF
-    echo \); echo
-    echo 'SEC2=$(cat <<'\'EOF\'
-    echo "$SEC2"
-    echo EOF
-    echo \); echo
-    echo 'SEC3=$(cat <<'\'EOF\'
-    echo "$SEC3"
-    echo EOF
-    echo \); echo
-    echo "$SEC3"
+pr_str () {
+    printf "%q" "$1"
 }
 
 case "$1" in
@@ -116,50 +113,36 @@ case "$1" in
     ;;
 esac
 
-print_self
-EOF
-)
+# print self
 
-print_self(){
-    echo "$SEC1"; echo
-    print_db; echo
-    echo "$SEC2"; echo
-    echo 'SEC1=$(cat <<'\'EOF\'
-    echo "$SEC1"
-    echo EOF
-    echo \); echo
-    echo 'SEC2=$(cat <<'\'EOF\'
-    echo "$SEC2"
-    echo EOF
-    echo \); echo
-    echo 'SEC3=$(cat <<'\'EOF\'
-    echo "$SEC3"
-    echo EOF
-    echo \); echo
-    echo "$SEC3"
+print_db(){
+    echo "db=("
+    i=0
+    for k in "${!db[@]}"; do
+        escaped_keys[$i]=$(pr_str "$k")
+        i=$((i+1))
+    done
+
+    # sort the keys for deterministic printing
+    IFS=$'\n' sorted=($(for l in ${escaped_keys[@]}; do echo $l; done | sort))
+    unset IFS
+
+    for k in "${sorted[@]}"; do
+        unescaped=$(eval "echo $k")
+        v=${db["$unescaped"]}
+        echo "    [$k]=$(pr_str "$v")"
+    done
+    echo ")"
 }
 
-case "$1" in
-    "get")
-        if [ ${db["$2"]+_} ]; then
-            v=${db["$2"]}
-            echo "$(pr_str "$v")" >&2
-        fi
-    ;;
-    "set")
-        db["$2"]="$3"
-        echo 'OK' >&2
-    ;;
-    "delete")
-        unset db["$2"]
-        echo 'OK' >&2
-    ;;
-    "keys")
-        for k in "${!db[@]}"; do echo "$(pr_str "$k")"; done >&2
-    ;;
-    *)
-        echo "USAGE: quinedb [get k | set k v | delete k | keys]" >&2
-    ;;
-esac
-
-print_self
+echo "$PREAMBLE"; echo
+print_db; echo
+echo 'PREAMBLE=$(cat <<'\'EOF\'
+echo "$PREAMBLE"
+echo EOF
+echo \); echo
+echo 'POSTAMBLE=$(cat <<'\'EOF\'
+echo "$POSTAMBLE"
+echo EOF
+echo \); echo
+echo "$POSTAMBLE"
