@@ -31,6 +31,19 @@ qdb () {
 }
 ```
 
+### Alternative for a distributed (versioned) version
+
+``` shell
+qdb () {
+  set -e
+  ./quinedb "$@" > qdb.out 2> qdb.err
+  cat qdb.out > /path/to/git/repos/mydb/qdb
+  (cd /path/to/git/repos/mydb/; git commit -m "$@" qdb; git pull --rebase; git push)
+  cat qdb.err
+  rm qdb.err qdb.out
+}
+```
+
 ### API
 
 QuineDB has four commands: `get`, `set`, `delete`, and `keys`.
